@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Prevents 403 Google Photos blocks -->
+<meta name="referrer" content="no-referrer">
+
+<title>Anki &amp; Darrel — A Story Written By Two Families</title>
+
+<!-- Preview metadata -->
+<meta property="og:title" content="Anki & Darrel — October 25, 2026">
+<meta property="og:description" content="Once upon a time, two families believed we belonged together.">
+<meta property="og:image" content="photos/hero.jpg">
+<meta property="og:type" content="website">
+
+<!-- Luxury Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Parisienne&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --parchment:#f7eed9;
+    --parchment-deep:#ecdfc0;
+    --ink:#2c2440;
+    --ink-soft:#4a3f66;
+    --gold:#c39a52;
+    --rose:#b96b73;
+    --muted:#6b6152;
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0;
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:'Cormorant Garamond', serif;
+    font-size:18px;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:1000px; margin:0 auto; padding:0 26px; position:relative; z-index:2; }
+  .ui{ font-family:'Inter', sans-serif; }
+  .script{ font-family:'Parisienne', cursive; }
+
+  /* ---------------- FIXED JUMPING BACKGROUND ---------------- */
+  .fixed-bg-stage {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .fixed-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    /* Spring bounce transition whenever scrolling triggers a jump */
+    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform;
+  }
+  .fixed-bg-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(44,36,64,0.4) 0%, rgba(44,36,64,0.68) 50%, rgba(44,36,64,0.88) 100%);
+  }
+
+  /* ---------------- CONTENT SECTIONS ---------------- */
+  .content-container {
+    position: relative;
+    z-index: 2;
+  }
+
+  .flourish{
+    display:flex; align-items:center; justify-content:center;
+    gap:14px; margin:26px 0; color:var(--gold);
+  }
+  .flourish::before, .flourish::after{
+    content:''; height:1px; width:60px; background:var(--gold); opacity:0.6;
+  }
+  .flourish svg{ width:18px; height:18px; }
+
+  /* Hero Section */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    padding:0 24px;
+  }
+  .hero-content{
+    color:var(--parchment);
+    animation: floatIn 1.3s ease-out both;
+  }
+  @keyframes floatIn{
+    from{ opacity:0; transform:translateY(18px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .hero-content .once{
+    font-family:'Parisienne', cursive;
+    font-size:clamp(1.6rem, 4vw, 2.4rem);
+    color:var(--gold);
+    margin:0 0 6px;
+  }
+  .hero-content h1{
+    font-size:clamp(2.8rem, 9vw, 5.8rem);
+    font-weight:600;
+    margin:0;
+    letter-spacing:0.01em;
+  }
+  .hero-content .amp{
+    font-family:'Parisienne', cursive;
+    font-size:0.7em;
+    color:var(--gold);
+    margin:0 0.12em;
+  }
+  .hero-content p.tag{
+    margin:22px auto 0;
+    max-width:480px;
+    font-style:italic;
+    font-size:1.35rem;
+    line-height:1.6;
+  }
+  .hero-content .date{
+    margin-top:26px;
+    font-family:'Inter', sans-serif;
+    font-size:0.72rem;
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    color:var(--parchment);
+    opacity:0.85;
+  }
+
+  /* Story Sections */
+  .chapter{ 
+    padding:80px 0 10px; 
+    text-align:center; 
+    color:var(--parchment);
+  }
+  .chapter .kicker{
+    font-family:'Inter', sans-serif;
+    font-size:0.7rem;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 14px;
+  }
+  .chapter h2{
+    font-size:clamp(1.8rem, 3.6vw, 2.6rem);
+    font-weight:600;
+    margin:0 0 20px;
+    color:#fff;
+  }
+  .chapter p{
+    max-width:620px;
+    margin:0 auto 16px;
+    font-size:1.2rem;
+    line-height:1.85;
+    color:rgba(247,238,217,0.85);
+  }
+  .chapter p.script-line{
+    font-family:'Parisienne', cursive;
+    font-size:1.6rem;
+    color:var(--gold);
+    margin-top:20px;
+  }
+
+  /* Horizontal Photo Galleries */
+  .pages{
+    display:flex;
+    gap:22px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding:10px 26px 34px;
+    margin:0 -26px 56px;
+  }
+  .pages::-webkit-scrollbar{ height:6px; }
+  .pages::-webkit-scrollbar-thumb{ background:var(--gold); border-radius:4px; }
+  .pages::-webkit-scrollbar-track{ background:rgba(0,0,0,0.3); }
+
+  .swipe-hint{
+    text-align:center;
+    font-family:'Inter', sans-serif;
+    font-size:0.68rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--parchment-deep);
+    margin:0 0 18px;
+    opacity:0.8;
+  }
+
+  .gallery-group{ margin-bottom:34px; }
+  .gallery-group .group-title{
+    font-family:'Parisienne', cursive;
+    font-size:1.7rem;
+    text-align:center;
+    color:var(--gold);
+    margin:0 0 6px;
+  }
+  .gallery-group .group-desc{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:1.05rem;
+    text-align:center;
+    color:rgba(247,238,217,0.8);
+    max-width:480px;
+    margin:0 auto 8px;
+    line-height:1.5;
+  }
+
+  .page{
+    flex:0 0 220px;
+    scroll-snap-align:start;
+    cursor:pointer;
+    background:var(--parchment);
+    padding:10px 10px 30px;
+    border:1px solid var(--parchment-deep);
+    box-shadow:0 12px 28px rgba(0,0,0,0.4);
+    transition:transform 0.25s ease, box-shadow 0.25s ease;
+    position:relative;
+  }
+  .page:hover{ transform:translateY(-6px); box-shadow:0 18px 36px rgba(0,0,0,0.6); }
+  .page .frame{
+    position:relative;
+    aspect-ratio:1/1.15;
+    overflow:hidden;
+    background:repeating-linear-gradient(135deg, var(--parchment-deep), var(--parchment-deep) 16px, #ddcda2 16px, #ddcda2 32px);
+    border:1px solid var(--gold);
+  }
+  .page .frame img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .page .hint{
+    display:none;
+    position:absolute; inset:0;
+    align-items:center; justify-content:center;
+    text-align:center; padding:10px;
+    font-family:'Inter', sans-serif;
+    font-size:0.68rem;
+    letter-spacing:0.04em;
+    color:var(--muted);
+  }
+  .page figcaption{
+    position:absolute;
+    bottom:8px; left:0; right:0;
+    text-align:center;
+    font-family:'Parisienne', cursive;
+    font-size:1.1rem;
+    color:var(--ink-soft);
+  }
+
+  /* Pop-Up Image Viewer (Lightbox) */
+  .lightbox{
+    position:fixed; inset:0;
+    background:rgba(44,36,64,0.95);
+    display:flex; align-items:center; justify-content:center;
+    z-index:100;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.25s ease;
+    padding:24px;
+  }
+  .lightbox.open{ opacity:1; pointer-events:auto; }
+  .lightbox .box{
+    background:var(--parchment);
+    padding:16px 16px 24px;
+    max-width:520px; width:100%;
+    text-align:center;
+    box-shadow:0 30px 60px rgba(0,0,0,0.5);
+    position:relative;
+  }
+  .lightbox img{
+    width:100%; max-height:60vh; object-fit:contain;
+    border:1px solid var(--gold);
+    background:var(--parchment-deep);
+  }
+  .lightbox .cap{
+    font-family:'Parisienne', cursive;
+    font-size:1.4rem;
+    margin:14px 0 6px;
+    color:var(--ink-soft);
+  }
+  .lightbox .dl{
+    display:inline-block;
+    font-family:'Inter', sans-serif;
+    font-size:0.75rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink);
+    border-bottom:1px solid var(--gold);
+    padding-bottom:5px;
+    margin-top:12px;
+    cursor:pointer;
+  }
+  .lightbox .close{
+    position:absolute;
+    top:18px; right:24px;
+    font-family:'Inter', sans-serif;
+    font-size:1.4rem;
+    color:var(--parchment);
+    cursor:pointer;
+    background:none; border:none;
+  }
+
+  /* Google Photos Invite Section */
+  .insert{
+    background:rgba(20, 16, 30, 0.75);
+    backdrop-filter: blur(8px);
+    border-top:1px solid rgba(195,154,82,0.3);
+    border-bottom:1px solid rgba(195,154,82,0.3);
+    color:var(--parchment);
+    padding:70px 0;
+    text-align:center;
+    margin-top:40px;
+  }
+  .insert .kicker{
+    font-family:'Inter', sans-serif;
+    font-size:0.7rem;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 16px;
+  }
+  .insert h3{ font-size:clamp(1.6rem,3.4vw,2.2rem); font-weight:600; margin:0 0 16px; }
+  .insert p{ max-width:520px; margin:0 auto 26px; line-height:1.8; color:rgba(247,238,217,0.78); font-size:1.15rem; }
+  
+  .btn-wrap{
+    display:flex;
+    gap:18px;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .btn{
+    display:inline-block;
+    font-family:'Inter', sans-serif;
+    font-size:0.78rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    border-bottom:1px solid var(--gold);
+    padding-bottom:6px;
+    color:var(--parchment);
+    cursor:pointer;
+    background:none;
+    border-top:none; border-left:none; border-right:none;
+    transition:color 0.2s ease;
+  }
+  .btn:hover{ color:var(--gold); }
+  .insert .note{
+    margin-top:20px;
+    font-family:'Inter', sans-serif;
+    font-size:0.7rem;
+    color:rgba(247,238,217,0.5);
+    font-style:italic;
+  }
+
+  /* Wedding Details Cards */
+  .details{
+    padding:80px 0;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    text-align:center;
+    color:var(--parchment);
+  }
+  .details .d{ padding:0 22px; border-left:1px solid rgba(247,238,217,0.25); }
+  .details .d:first-child{ border-left:none; }
+  .details .label{
+    font-family:'Inter', sans-serif;
+    font-size:0.68rem;
+    letter-spacing:0.24em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 10px;
+  }
+  .details .value{ font-size:1.5rem; margin:0; font-weight:600; }
+  .details .sub{ font-size:1rem; color:var(--parchment-deep); margin:6px 0 0; font-style:italic; }
+
+  @media (max-width:700px){
+    .details{ grid-template-columns:1fr; gap:26px; }
+    .details .d{ border-left:none; border-top:1px solid rgba(247,238,217,0.25); padding-top:22px; }
+    .details .d:first-child{ border-top:none; padding-top:0; }
+  }
+
+  footer{ text-align:center; padding:40px 0 54px; position:relative; z-index:2; }
+  footer .script{ font-size:1.6rem; color:var(--gold); margin:0 0 10px; }
+  footer .fine{
+    font-family:'Inter', sans-serif;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--parchment-deep);
+  }
+</style>
+</head>
+<body>
+
+  <!-- =========================================================
+       FIXED BACKGROUND WITH SPRING JUMP EFFECT
+       ========================================================= -->
+  <div class="fixed-bg-stage">
+    <img id="jumpingBg" class="fixed-bg-image" src="photos/hero.jpg" alt="Anki and Darrel" onerror="this.src='https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80'">
+    <div class="fixed-bg-veil"></div>
+  </div>
+
+  <div class="content-container">
+
+    <!-- Hero Title -->
+    <section class="hero">
+      <div class="hero-content">
+        <p class="once">Once upon a time...</p>
+        <h1>Anki<span class="amp">&amp;</span>Darrel</h1>
+        <p class="tag">two families believed they belonged together, long before we did.</p>
+        <p class="date">October 25, 2026</p>
+      </div>
+    </section>
+
+    <div class="wrap">
+
+      <section class="chapter">
+        <p class="kicker">Chapter One</p>
+        <h2>How Our Story Was Written</h2>
+        <p>Every fairy tale needs someone to turn the first page. Ours were turned by our parents — who believed, before we ever met, that we would be good for each other.</p>
+        <p class="script-line">"They wrote the first chapter, and let us finish the rest."</p>
+      </section>
+
+      <div class="flourish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3l2.2 5.6L20 11l-5.8 2.4L12 19l-2.2-5.6L4 11l5.8-2.4L12 3z"/></svg>
+      </div>
+
+      <section class="chapter">
+        <p class="kicker">Chapter Two</p>
+        <h2>Pages From Our Story</h2>
+        <p>A few of our favourite moments, told in order. Tap any photo to view it full screen.</p>
+      </section>
+
+      <div id="gallery-groups"></div>
+
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+      <button class="close" onclick="closeBook()" aria-label="Close">✕</button>
+      <div class="box">
+        <img id="lb-img" src="" alt="">
+        <p class="cap" id="lb-caption"></p>
+        <a class="dl" id="lb-link" href="https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">Download Full Resolution on Google Photos ↗</a>
+      </div>
+    </div>
+
+    <!-- Google Photos Shared Link -->
+    <div class="insert">
+      <div class="wrap">
+        <p class="kicker">Google Photos AI Album</p>
+        <h3>Find Your Photos With AI Face Search</h3>
+        <p>Looking for shots of yourself? Browse our shared Google Photos album. Tap the <strong>Search</strong> icon inside Google Photos to use <strong>People / Find Person</strong> to locate all pictures of you instantly.</p>
+        
+        <div class="btn-wrap">
+          <a class="btn" href="https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+            Open Google Photos Album ↗
+          </a>
+          <button class="btn" id="copyBtn" onclick="copyAlbumLink()">
+            📋 Copy Album Link
+          </button>
+        </div>
+        
+        <p class="note">Opens directly in Google Photos without pop-up issues</p>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="details">
+        <div class="d">
+          <p class="label">The Date</p>
+          <p class="value">October 25, 2026</p>
+          <p class="sub">Sunday</p>
+        </div>
+        <div class="d">
+          <p class="label">The Time</p>
+          <p class="value">Time TBD</p>
+          <p class="sub">Ceremony, then celebration</p>
+        </div>
+        <div class="d">
+          <p class="label">The Place</p>
+          <p class="value">Venue TBD</p>
+          <p class="sub">Full address to follow</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p class="script">...and they lived happily ever after.</p>
+      <p class="fine">Anki &amp; Darrel · With love from both our families · Est. 2026</p>
+    </footer>
+
+  </div>
+
+<script>
+  // =========================================================
+  // SCROLL TRIGGERED "JUMP UP" EFFECT
+  // =========================================================
+  const bg = document.getElementById('jumpingBg');
+  let lastScrollY = window.scrollY;
+  let resetTimer = null;
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+
+    // Trigger an upward spring bounce when scrolling downwards
+    if (currentScrollY > lastScrollY && currentScrollY > 10) {
+      bg.style.transform = 'translateY(-30px) scale(1.04)';
+    } else {
+      bg.style.transform = 'translateY(0px) scale(1)';
+    }
+
+    lastScrollY = currentScrollY;
+
+    // Reset softly back when scrolling pauses
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => {
+      bg.style.transform = 'translateY(0px) scale(1)';
+    }, 180);
+  }, { passive: true });
+
+  // =========================================================
+  // GOOGLE PHOTOS & GALLERY CONFIGURATION
+  // =========================================================
+  const GOOGLE_ALBUM_URL = "https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8";
+
+  const photoGroups = [
+    { 
+      title: 'The Wedding Day (Nuptial Mass)', 
+      desc: 'The day two families\' hopes walked down the aisle together.',
+      photos: ['photos/wedding_1.jpg', 'photos/wedding_2.jpg', 'photos/wedding_3.jpg', 'photos/wedding_4.jpg']
+    },
+    { 
+      title: 'The Matto Ceremony', 
+      desc: 'A blessing exchanged between our families, sealed in tradition.',
+      photos: ['photos/matto_1.jpg', 'photos/matto_2.jpg', 'photos/matto_3.jpg', 'photos/matto_4.jpg']
+    },
+    { 
+      title: 'The Roce — Bride\'s Side', 
+      desc: 'Coconut milk, laughter, and a house full of relatives wishing Anki well.',
+      photos: ['photos/roce_bride_1.jpg', 'photos/roce_bride_2.jpg', 'photos/roce_bride_3.jpg']
+    },
+    { 
+      title: 'The Roce — Groom\'s Side', 
+      desc: 'The same blessing and joy at Darrel\'s home.',
+      photos: ['photos/roce_groom_1.jpg', 'photos/roce_groom_2.jpg', 'photos/roce_groom_3.jpg']
+    },
+    { 
+      title: 'Bridal Side Get-Together', 
+      desc: 'The evening our families sat down together, not as strangers anymore.',
+      photos: ['photos/gettogether_1.jpg', 'photos/gettogether_2.jpg']
+    },
+    { 
+      title: 'The Pre-Wedding Shoot', 
+      desc: 'A few quiet hours to just be two people.',
+      photos: ['photos/prewedding_1.jpg', 'photos/prewedding_2.jpg']
+    },
+    { 
+      title: 'Family & Friends', 
+      desc: 'The people who raised us, teased us, and celebrated with us.',
+      photos: ['photos/friends_1.jpg', 'photos/friends_2.jpg']
+    },
+    { 
+      title: 'The Celebration & Reception', 
+      desc: 'Dinner, toasts, and dancing late into the evening.',
+      photos: ['photos/celebration_1.jpg', 'photos/celebration_2.jpg']
+    }
+  ];
+
+  function copyAlbumLink(){
+    const btn = document.getElementById('copyBtn');
+    navigator.clipboard.writeText(GOOGLE_ALBUM_URL).then(() => {
+      const orig = btn.innerText;
+      btn.innerText = "✓ Link Copied!";
+      setTimeout(() => { btn.innerText = orig; }, 2500);
+    }).catch(() => {
+      prompt("Copy our Google Photos album link:", GOOGLE_ALBUM_URL);
+    });
+  }
+
+  function renderGallery(){
+    const container = document.getElementById('gallery-groups');
+    container.innerHTML = photoGroups.map(group => `
+      <div class="gallery-group">
+        <p class="group-title">${group.title}</p>
+        <p class="group-desc">${group.desc}</p>
+        <p class="swipe-hint">← swipe to view photos →</p>
+        <div class="pages">
+          ${group.photos.map(filePath => `
+            <figure class="page" onclick="openBook('${filePath}')">
+              <div class="frame">
+                <img src="${filePath}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <span class="hint">${filePath}</span>
+              </div>
+            </figure>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+  renderGallery();
+
+  function openBook(src){
+    document.getElementById('lb-img').src = src;
+    document.getElementById('lb-link').href = GOOGLE_ALBUM_URL;
+    document.getElementById('lightbox').classList.add('open');
+  }
+
+  function closeBook(){
+    document.getElementById('lightbox').classList.remove('open');
+  }
+  
+  document.getElementById('lightbox').addEventListener('click', function(e){
+    if(e.target === this) closeBook();
+  });
+</script>
+
+</body>
+</html>
