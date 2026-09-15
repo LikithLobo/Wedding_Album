@@ -1,0 +1,61 @@
+{
+  "albumUrl": "https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8",
+  "groups": [
+    {
+      "key": "wedding",
+      "title": "The Wedding Day (Nuptial Mass)",
+      "desc": "The day two families' hopes walked down the aisle together.",
+      "folder": "photos/wedding",
+      "count": 20
+    },
+    {
+      "key": "matto",
+      "title": "The Matto Ceremony",
+      "desc": "A blessing exchanged between our families, sealed in tradition.",
+      "folder": "photos/matto",
+      "count": 20
+    },
+    {
+      "key": "roce_bride",
+      "title": "The Roce — Bride's Side",
+      "desc": "Coconut milk, laughter, and a house full of relatives wishing Anki well.",
+      "folder": "photos/roce_bride",
+      "count": 20
+    },
+    {
+      "key": "roce_groom",
+      "title": "The Roce — Groom's Side",
+      "desc": "The same blessing and joy at Darrel's home.",
+      "folder": "photos/roce_groom",
+      "count": 20
+    },
+    {
+      "key": "gettogether",
+      "title": "Bridal Side Get-Together",
+      "desc": "The evening our families sat down together, not as strangers anymore.",
+      "folder": "photos/gettogether",
+      "count": 20
+    },
+    {
+      "key": "prewedding",
+      "title": "The Pre-Wedding Shoot",
+      "desc": "A few quiet hours to just be two people.",
+      "folder": "photos/prewedding",
+      "count": 20
+    },
+    {
+      "key": "friends",
+      "title": "Family & Friends",
+      "desc": "The people who raised us, teased us, and celebrated with us.",
+      "folder": "photos/friends",
+      "count": 20
+    },
+    {
+      "key": "celebration",
+      "title": "The Celebration & Reception",
+      "desc": "Dinner, toasts, and dancing late into the evening.",
+      "folder": "photos/celebration",
+      "count": 20
+    }
+  ]
+}
