@@ -7,13 +7,28 @@
 <!-- Prevents 403 Google Photos blocks -->
 <meta name="referrer" content="no-referrer">
 
+<!-- Keep this private — not for search engines -->
+<meta name="robots" content="noindex, nofollow">
+
 <title>Anki &amp; Darrel — A Story Written By Two Families</title>
 
-<!-- Preview metadata -->
+<!--
+  WhatsApp / iMessage / Facebook link previews (Open Graph) use this image
+  file directly — it's a separate, purpose-built 1200x630 card with the
+  couple's names, tagline, and date baked in as pixels, kept distinct from
+  the live hero.jpg background used on the page itself. Replace
+  /photos/preview-card.png with a new export any time the wording changes.
+-->
 <meta property="og:title" content="Anki & Darrel — October 25, 2026">
 <meta property="og:description" content="Once upon a time, two families believed we belonged together.">
-<meta property="og:image" content="photos/hero.jpg">
+<meta property="og:image" content="photos/preview-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Simple gold ring-monogram favicon (inline, no extra file needed) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232c2440'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23c39a52' font-family='Georgia,serif'%3E%26%3C/text%3E%3C/svg%3E">
 
 <!-- Luxury Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,12 +69,17 @@
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
+    /* helps iOS Safari composite the fixed layer instead of repainting it */
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
   }
   .fixed-bg-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     /* Spring bounce transition whenever scrolling triggers a jump */
     transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     will-change: transform;
@@ -242,7 +262,7 @@
     align-items:center; justify-content:center;
     text-align:center; padding:10px;
     font-family:'Inter', sans-serif;
-    font-size:0.68rem;
+    font-size:0.7rem;
     letter-spacing:0.04em;
     color:var(--muted);
   }
@@ -438,7 +458,9 @@
         <p>A few of our favourite moments, told in order. Tap any photo to view it full screen.</p>
       </section>
 
-      <div id="gallery-groups"></div>
+      <div id="gallery-groups">
+        <p class="ui" style="text-align:center; opacity:0.6; font-size:0.9rem;">Loading photos…</p>
+      </div>
 
     </div>
 
@@ -460,7 +482,7 @@
         <p>Looking for shots of yourself? Browse our shared Google Photos album. Tap the <strong>Search</strong> icon inside Google Photos to use <strong>People / Find Person</strong> to locate all pictures of you instantly.</p>
         
         <div class="btn-wrap">
-          <a class="btn" href="https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+          <a class="btn" id="albumLink" href="https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
             Open Google Photos Album ↗
           </a>
           <button class="btn" id="copyBtn" onclick="copyAlbumLink()">
@@ -481,13 +503,13 @@
         </div>
         <div class="d">
           <p class="label">The Time</p>
-          <p class="value">Time TBD</p>
+          <p class="value">Coming Soon</p>
           <p class="sub">Ceremony, then celebration</p>
         </div>
         <div class="d">
           <p class="label">The Place</p>
-          <p class="value">Venue TBD</p>
-          <p class="sub">Full address to follow</p>
+          <p class="value">Coming Soon</p>
+          <p class="sub">Full address to follow closer to the date</p>
         </div>
       </div>
     </div>
@@ -506,73 +528,91 @@
   const bg = document.getElementById('jumpingBg');
   let lastScrollY = window.scrollY;
   let resetTimer = null;
+  let ticking = false;
 
   window.addEventListener('scroll', () => {
-    const currentScrollY = window.scrollY;
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const currentScrollY = window.scrollY;
 
-    // Trigger an upward spring bounce when scrolling downwards
-    if (currentScrollY > lastScrollY && currentScrollY > 10) {
-      bg.style.transform = 'translateY(-30px) scale(1.04)';
-    } else {
-      bg.style.transform = 'translateY(0px) scale(1)';
-    }
+      if (currentScrollY > lastScrollY && currentScrollY > 10) {
+        bg.style.transform = 'translate3d(0,-30px,0) scale(1.04)';
+      } else {
+        bg.style.transform = 'translate3d(0,0,0) scale(1)';
+      }
 
-    lastScrollY = currentScrollY;
+      lastScrollY = currentScrollY;
 
-    // Reset softly back when scrolling pauses
-    clearTimeout(resetTimer);
-    resetTimer = setTimeout(() => {
-      bg.style.transform = 'translateY(0px) scale(1)';
-    }, 180);
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        bg.style.transform = 'translate3d(0,0,0) scale(1)';
+      }, 180);
+
+      ticking = false;
+    });
   }, { passive: true });
 
   // =========================================================
-  // GOOGLE PHOTOS & GALLERY CONFIGURATION
+  // GOOGLE PHOTOS & GALLERY CONFIGURATION — loaded from photos.json
   // =========================================================
-  const GOOGLE_ALBUM_URL = "https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8";
+  let GOOGLE_ALBUM_URL = "https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8";
 
-  const photoGroups = [
-    { 
-      title: 'The Wedding Day (Nuptial Mass)', 
-      desc: 'The day two families\' hopes walked down the aisle together.',
-      photos: ['photos/wedding_1.jpg', 'photos/wedding_2.jpg', 'photos/wedding_3.jpg', 'photos/wedding_4.jpg']
-    },
-    { 
-      title: 'The Matto Ceremony', 
-      desc: 'A blessing exchanged between our families, sealed in tradition.',
-      photos: ['photos/matto_1.jpg', 'photos/matto_2.jpg', 'photos/matto_3.jpg', 'photos/matto_4.jpg']
-    },
-    { 
-      title: 'The Roce — Bride\'s Side', 
-      desc: 'Coconut milk, laughter, and a house full of relatives wishing Anki well.',
-      photos: ['photos/roce_bride_1.jpg', 'photos/roce_bride_2.jpg', 'photos/roce_bride_3.jpg']
-    },
-    { 
-      title: 'The Roce — Groom\'s Side', 
-      desc: 'The same blessing and joy at Darrel\'s home.',
-      photos: ['photos/roce_groom_1.jpg', 'photos/roce_groom_2.jpg', 'photos/roce_groom_3.jpg']
-    },
-    { 
-      title: 'Bridal Side Get-Together', 
-      desc: 'The evening our families sat down together, not as strangers anymore.',
-      photos: ['photos/gettogether_1.jpg', 'photos/gettogether_2.jpg']
-    },
-    { 
-      title: 'The Pre-Wedding Shoot', 
-      desc: 'A few quiet hours to just be two people.',
-      photos: ['photos/prewedding_1.jpg', 'photos/prewedding_2.jpg']
-    },
-    { 
-      title: 'Family & Friends', 
-      desc: 'The people who raised us, teased us, and celebrated with us.',
-      photos: ['photos/friends_1.jpg', 'photos/friends_2.jpg']
-    },
-    { 
-      title: 'The Celebration & Reception', 
-      desc: 'Dinner, toasts, and dancing late into the evening.',
-      photos: ['photos/celebration_1.jpg', 'photos/celebration_2.jpg']
+  // Turn a {folder, count} config into an actual file list: 01.jpg ... NN.jpg
+  function expandPhotos(group){
+    const files = [];
+    for (let i = 1; i <= group.count; i++){
+      const num = String(i).padStart(2, '0');
+      files.push(`${group.folder}/${num}.jpg`);
     }
-  ];
+    return files;
+  }
+
+  async function loadGallery(){
+    const container = document.getElementById('gallery-groups');
+    try {
+      const res = await fetch('photos.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error('photos.json not found (status ' + res.status + ')');
+      const data = await res.json();
+
+      if (data.albumUrl) {
+        GOOGLE_ALBUM_URL = data.albumUrl;
+        document.getElementById('albumLink').href = GOOGLE_ALBUM_URL;
+        document.getElementById('lb-link').href = GOOGLE_ALBUM_URL;
+      }
+
+      renderGallery(data.groups || []);
+    } catch (err) {
+      console.error('Could not load photos.json:', err);
+      container.innerHTML = '<p class="ui" style="text-align:center; opacity:0.6; font-size:0.9rem;">Photos will appear here soon.</p>';
+    }
+  }
+
+  function renderGallery(groups){
+    const container = document.getElementById('gallery-groups');
+    container.innerHTML = groups.map(group => {
+      const photos = expandPhotos(group);
+      const showSwipeHint = photos.length > 3; // only nudge to swipe when there's actually more than a screenful
+      return `
+      <div class="gallery-group">
+        <p class="group-title">${group.title}</p>
+        <p class="group-desc">${group.desc}</p>
+        ${showSwipeHint ? '<p class="swipe-hint">← swipe to view photos →</p>' : ''}
+        <div class="pages">
+          ${photos.map(filePath => `
+            <figure class="page" onclick="openBook('${filePath}', '${group.title.replace(/'/g, "\\'")}')">
+              <div class="frame">
+                <img src="${filePath}" alt="${group.title}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <span class="hint">Photo coming soon</span>
+              </div>
+            </figure>
+          `).join('')}
+        </div>
+      </div>
+    `}).join('');
+  }
+
+  loadGallery();
 
   function copyAlbumLink(){
     const btn = document.getElementById('copyBtn');
@@ -585,30 +625,10 @@
     });
   }
 
-  function renderGallery(){
-    const container = document.getElementById('gallery-groups');
-    container.innerHTML = photoGroups.map(group => `
-      <div class="gallery-group">
-        <p class="group-title">${group.title}</p>
-        <p class="group-desc">${group.desc}</p>
-        <p class="swipe-hint">← swipe to view photos →</p>
-        <div class="pages">
-          ${group.photos.map(filePath => `
-            <figure class="page" onclick="openBook('${filePath}')">
-              <div class="frame">
-                <img src="${filePath}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <span class="hint">${filePath}</span>
-              </div>
-            </figure>
-          `).join('')}
-        </div>
-      </div>
-    `).join('');
-  }
-  renderGallery();
-
-  function openBook(src){
+  function openBook(src, caption){
     document.getElementById('lb-img').src = src;
+    document.getElementById('lb-img').alt = caption || '';
+    document.getElementById('lb-caption').textContent = caption || '';
     document.getElementById('lb-link').href = GOOGLE_ALBUM_URL;
     document.getElementById('lightbox').classList.add('open');
   }
