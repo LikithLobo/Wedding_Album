@@ -67,7 +67,9 @@
     display: block;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Resting scale slightly above 1 so the jump never reveals the edges */
+    transform: translate3d(0,0,0) scale(1.06);
+    transition: transform 0.4s cubic-bezier(0.22, 0.8, 0.3, 1);
     will-change: transform;
   }
   .fixed-bg-veil {
@@ -185,7 +187,7 @@
     overflow-y:hidden;
     scroll-snap-type:x mandatory;
     -webkit-overflow-scrolling:touch;
-    padding:10px 26px 34px;
+    padding:18px 26px 40px;
     margin:0 -26px 56px;
   }
   .pages::-webkit-scrollbar{ height:6px; }
@@ -202,11 +204,17 @@
     margin:0 0 18px;
     opacity:0.8;
   }
+  /* Touch devices see "swipe", pointer devices see "scroll" */
+  .swipe-hint .hint-touch{ display:none; }
+  @media (hover:none) and (pointer:coarse){
+    .swipe-hint .hint-touch{ display:inline; }
+    .swipe-hint .hint-mouse{ display:none; }
+  }
 
   .gallery-group{ margin-bottom:34px; }
   .gallery-group .group-title{
     font-family:'Parisienne', cursive;
-    font-size:1.7rem;
+    font-size:2.1rem;
     text-align:center;
     color:var(--gold);
     margin:0 0 6px;
@@ -236,8 +244,8 @@
   .gallery-group .group-link:hover{ color:var(--gold); }
 
   .page{
-    flex:0 0 220px;
-    scroll-snap-align:start;
+    flex:0 0 250px;
+    scroll-snap-align:center;
     cursor:pointer;
     background:var(--parchment);
     padding:10px 10px 30px;
@@ -246,8 +254,15 @@
     transition:transform 0.25s ease, box-shadow 0.25s ease;
     position:relative;
     margin:0;
+    transform:rotate(-1.5deg);
   }
-  .page:hover{ transform:translateY(-6px); box-shadow:0 18px 36px rgba(0,0,0,0.6); }
+  .page:nth-child(even){ transform:rotate(1.5deg); }
+  .page:hover,
+  .page:focus-visible{
+    transform:rotate(0deg) translateY(-6px);
+    box-shadow:0 18px 36px rgba(0,0,0,0.6);
+  }
+  .page:focus-visible{ outline:2px solid var(--gold); outline-offset:4px; }
   .page .frame{
     position:relative;
     aspect-ratio:1/1.15;
@@ -284,8 +299,15 @@
   .lightbox .cap{
     font-family:'Parisienne', cursive;
     font-size:1.4rem;
-    margin:14px 0 6px;
+    margin:14px 0 2px;
     color:var(--ink-soft);
+  }
+  .lightbox .count{
+    font-family:'Inter', sans-serif;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    color:var(--muted);
+    margin:0 0 4px;
   }
   .lightbox .dl{
     display:inline-block;
@@ -301,12 +323,42 @@
   }
   .lightbox .close{
     position:absolute;
-    top:18px; right:24px;
+    top:10px; right:12px;
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
     font-family:'Inter', sans-serif;
     font-size:1.4rem;
+    line-height:1;
     color:var(--parchment);
     cursor:pointer;
-    background:none; border:none;
+    background:rgba(247,238,217,0.1);
+    border:1px solid rgba(195,154,82,0.6);
+    border-radius:50%;
+  }
+  .lightbox .nav{
+    position:absolute;
+    top:50%;
+    width:44px; height:44px;
+    margin-top:-44px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.5rem;
+    line-height:1;
+    color:var(--parchment);
+    background:rgba(44,36,64,0.78);
+    border:1px solid var(--gold);
+    border-radius:50%;
+    cursor:pointer;
+    padding:0;
+  }
+  .lightbox .nav.prev{ left:-8px; }
+  .lightbox .nav.next{ right:-8px; }
+  .lightbox .nav[hidden]{ display:none; }
+  .lightbox .close:focus-visible,
+  .lightbox .nav:focus-visible,
+  .lightbox .dl:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+  @media (min-width:700px){
+    .lightbox .nav.prev{ left:-60px; }
+    .lightbox .nav.next{ right:-60px; }
   }
 
   /* Google Photos Albums Section */
@@ -329,7 +381,7 @@
     color:var(--gold);
     margin:0 0 16px;
   }
-  .insert h3{ font-size:clamp(1.6rem,3.4vw,2.2rem); font-weight:600; margin:0 0 16px; }
+  .insert h3{ font-size:clamp(1.6rem,3.4vw,2.2rem); font-weight:600; margin:0 0 16px; color:#fff; }
   .insert p{ max-width:520px; margin:0 auto 26px; line-height:1.8; color:rgba(247,238,217,0.78); font-size:1.15rem; }
 
   .album-links{
@@ -342,7 +394,7 @@
   .album-row{ text-align:center; }
   .album-row .album-name{
     font-family:'Parisienne', cursive;
-    font-size:1.5rem;
+    font-size:1.8rem;
     color:var(--gold);
     margin:0 0 8px;
   }
@@ -368,6 +420,7 @@
     transition:color 0.2s ease;
   }
   .btn:hover{ color:var(--gold); }
+  .btn:focus-visible{ outline:2px solid var(--gold); outline-offset:4px; }
   .insert .note{
     margin-top:30px;
     margin-bottom:0;
@@ -379,9 +432,11 @@
 
   /* Wedding Details Cards */
   .details{
-    padding:80px 0;
+    padding:50px 0 80px;
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(2,1fr);
+    max-width:760px;
+    margin:0 auto;
     text-align:center;
     color:var(--parchment);
   }
@@ -405,13 +460,24 @@
   }
 
   footer{ text-align:center; padding:40px 26px 54px; position:relative; z-index:2; }
-  footer .script{ font-size:1.6rem; color:var(--gold); margin:0 0 10px; }
+  footer .script{
+    font-size:clamp(1.3rem, 3.4vw, 1.6rem);
+    color:var(--gold);
+    margin:0 auto 10px;
+    max-width:620px;
+    line-height:1.5;
+  }
   footer .fine{
     font-family:'Inter', sans-serif;
     font-size:0.68rem;
     letter-spacing:0.08em;
     text-transform:uppercase;
     color:var(--parchment-deep);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .fixed-bg-image, .page, .lightbox{ transition:none; }
+    .hero-content{ animation:none; }
   }
 </style>
 </head>
@@ -462,11 +528,14 @@
     </div>
 
     <!-- Lightbox -->
-    <div class="lightbox" id="lightbox">
-      <button class="close" onclick="closeBook()" aria-label="Close">✕</button>
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+      <button class="close" id="lb-close" onclick="closeBook()" aria-label="Close">✕</button>
       <div class="box">
+        <button class="nav prev" id="lb-prev" type="button" aria-label="Previous photo">‹</button>
+        <button class="nav next" id="lb-next" type="button" aria-label="Next photo">›</button>
         <img id="lb-img" src="" alt="">
         <p class="cap" id="lb-caption"></p>
+        <p class="count ui" id="lb-count"></p>
         <a class="dl" id="lb-link" href="https://photos.app.goo.gl/Kpk9cEHSjDZeLV5T7" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">Download Full Resolution on Google Photos ↗</a>
       </div>
     </div>
@@ -475,11 +544,16 @@
     <div class="insert">
       <div class="wrap">
         <p class="kicker">Full Albums</p>
+        <h3>Every Photo, in Full</h3>
+        <p>Open an album to see every photo in full resolution, or copy the link to share it with family.</p>
         <div class="album-links" id="album-links"></div>
       </div>
     </div>
 
     <div class="wrap">
+      <div class="flourish" style="margin-top:50px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3l2.2 5.6L20 11l-5.8 2.4L12 19l-2.2-5.6L4 11l5.8-2.4L12 3z"/></svg>
+      </div>
       <div class="details">
         <div class="d">
           <p class="label">The Day</p>
@@ -502,34 +576,41 @@
   </div>
 
 <script>
-  // SCROLL TRIGGERED "JUMP UP" EFFECT
+  // SCROLL TRIGGERED "JUMP UP" EFFECT (subtle, and only after a real scroll)
   const bg = document.getElementById('jumpingBg');
+  const REST = 'translate3d(0,0,0) scale(1.06)';
+  const JUMP = 'translate3d(0,-10px,0) scale(1.06)';
   let lastScrollY = window.scrollY;
   let resetTimer = null;
   let ticking = false;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  window.addEventListener('scroll', () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      const currentScrollY = window.scrollY;
+  if (!reduceMotion){
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const delta = currentScrollY - lastScrollY;
 
-      if (currentScrollY > lastScrollY && currentScrollY > 10) {
-        bg.style.transform = 'translate3d(0,-30px,0) scale(1.04)';
-      } else {
-        bg.style.transform = 'translate3d(0,0,0) scale(1)';
-      }
+        if (delta > 14 && currentScrollY > 10) {
+          bg.style.transform = JUMP;
+          lastScrollY = currentScrollY;
+        } else if (delta < -14) {
+          bg.style.transform = REST;
+          lastScrollY = currentScrollY;
+        }
 
-      lastScrollY = currentScrollY;
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          bg.style.transform = REST;
+          lastScrollY = window.scrollY;
+        }, 200);
 
-      clearTimeout(resetTimer);
-      resetTimer = setTimeout(() => {
-        bg.style.transform = 'translate3d(0,0,0) scale(1)';
-      }, 180);
-
-      ticking = false;
-    });
-  }, { passive: true });
+        ticking = false;
+      });
+    }, { passive: true });
+  }
 
   // GALLERY — everything is configured in photos.json
   // Default album link, used if a section has no albumUrl of its own.
@@ -582,7 +663,7 @@
 
       const hint = document.createElement('p');
       hint.className = 'swipe-hint';
-      hint.textContent = '← swipe to view photos →';
+      hint.innerHTML = '<span class="hint-touch">← swipe to view photos →</span><span class="hint-mouse">scroll for more photos →</span>';
 
       const strip = document.createElement('div');
       strip.className = 'pages';
@@ -595,7 +676,19 @@
 
         const fig = document.createElement('figure');
         fig.className = 'page';
-        fig.addEventListener('click', () => openBook(src, group.title, albumUrl));
+        fig.tabIndex = 0;
+        fig.setAttribute('role', 'button');
+        fig.setAttribute('aria-label', 'Open photo ' + i + ' of ' + group.title);
+
+        const open = () => {
+          const figs = Array.from(strip.children);
+          const srcs = figs.map(f => f.querySelector('img').getAttribute('src'));
+          openBook(srcs, figs.indexOf(fig), group.title, albumUrl);
+        };
+        fig.addEventListener('click', open);
+        fig.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); }
+        });
 
         const frame = document.createElement('div');
         frame.className = 'frame';
@@ -663,25 +756,63 @@
     });
   }
 
-  function openBook(src, caption, albumUrl){
-    document.getElementById('lb-img').src = src;
+  // LIGHTBOX with previous / next
+  let lbItems = [];
+  let lbIndex = 0;
+  let lbReturnFocus = null;
+  const lightbox = document.getElementById('lightbox');
+  const lbPrev = document.getElementById('lb-prev');
+  const lbNext = document.getElementById('lb-next');
+
+  function showAt(i){
+    if (!lbItems.length) return;
+    lbIndex = (i + lbItems.length) % lbItems.length;
+    document.getElementById('lb-img').src = lbItems[lbIndex];
+    document.getElementById('lb-count').textContent = lbItems.length > 1 ? (lbIndex + 1) + ' / ' + lbItems.length : '';
+  }
+
+  function openBook(items, index, caption, albumUrl){
+    lbItems = items;
+    lbReturnFocus = document.activeElement;
     document.getElementById('lb-img').alt = caption || '';
     document.getElementById('lb-caption').textContent = caption || '';
     document.getElementById('lb-link').href = albumUrl || DEFAULT_ALBUM_URL;
-    document.getElementById('lightbox').classList.add('open');
+    const multi = items.length > 1;
+    lbPrev.hidden = !multi;
+    lbNext.hidden = !multi;
+    showAt(index);
+    lightbox.classList.add('open');
+    document.getElementById('lb-close').focus();
   }
 
   function closeBook(){
-    document.getElementById('lightbox').classList.remove('open');
+    lightbox.classList.remove('open');
+    if (lbReturnFocus && lbReturnFocus.focus) lbReturnFocus.focus();
   }
 
-  document.getElementById('lightbox').addEventListener('click', function(e){
+  lbPrev.addEventListener('click', () => showAt(lbIndex - 1));
+  lbNext.addEventListener('click', () => showAt(lbIndex + 1));
+
+  lightbox.addEventListener('click', function(e){
     if (e.target === this) closeBook();
   });
 
   document.addEventListener('keydown', function(e){
+    if (!lightbox.classList.contains('open')) return;
     if (e.key === 'Escape') closeBook();
+    else if (e.key === 'ArrowLeft') showAt(lbIndex - 1);
+    else if (e.key === 'ArrowRight') showAt(lbIndex + 1);
   });
+
+  // Swipe left/right inside the lightbox on touch screens
+  let touchX = null;
+  lightbox.addEventListener('touchstart', e => { touchX = e.changedTouches[0].clientX; }, { passive: true });
+  lightbox.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) showAt(lbIndex + (dx < 0 ? 1 : -1));
+    touchX = null;
+  }, { passive: true });
 
   loadGallery();
 </script>
