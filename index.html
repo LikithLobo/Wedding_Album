@@ -243,16 +243,6 @@
     border:1px solid var(--gold);
   }
   .page .frame img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .page .hint{
-    display:none;
-    position:absolute; inset:0;
-    align-items:center; justify-content:center;
-    text-align:center; padding:10px;
-    font-family:'Inter', sans-serif;
-    font-size:0.7rem;
-    letter-spacing:0.04em;
-    color:var(--muted);
-  }
 
   /* Pop-Up Image Viewer (Lightbox) */
   .lightbox{
@@ -530,31 +520,11 @@
     });
   }, { passive: true });
 
-  // GOOGLE PHOTOS & GALLERY CONFIGURATION
+  // GALLERY — everything is configured in photos.json
   let GOOGLE_ALBUM_URL = "https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8";
 
-  // Only these sections are shown. Titles must match exactly.
-  // To show every section from photos.json, change this to: const ALLOWED_TITLES = [];
-  const ALLOWED_TITLES = ["Anki's Roce", "Darrel's Roce", "Anki & Darrel's Wedding"];
-
-  // Used only if photos.json can't be loaded. Edit "count" to your real number of photos.
-  const FALLBACK_GROUPS = [
-    { title: "Anki's Roce", desc: "The blessings, the oil, and the laughter before the big day.", folder: "photos/anki-roce", count: 12 },
-    { title: "Darrel's Roce", desc: "Darrel's celebration with family and friends.", folder: "photos/darrel-roce", count: 12 },
-    { title: "Anki & Darrel's Wedding", desc: "October 25, 2026, the day we said yes, forever.", folder: "photos/wedding", count: 20 }
-  ];
-
-  // Turn a {folder, count} config into a file list: 01.JPG ... NN.JPG
-  function expandPhotos(group){
-    const files = [];
-    for (let i = 1; i <= group.count; i++){
-      const num = String(i).padStart(2, '0');
-      files.push(`${group.folder}/${num}.JPG`);
-    }
-    return files;
-  }
-
   async function loadGallery(){
+    const container = document.getElementById('gallery-groups');
     try {
       const res = await fetch('photos.json', { cache: 'no-store' });
       if (!res.ok) throw new Error('photos.json not found (status ' + res.status + ')');
@@ -566,46 +536,63 @@
         document.getElementById('lb-link').href = GOOGLE_ALBUM_URL;
       }
 
-      renderGallery(data.groups || FALLBACK_GROUPS);
+      renderGallery(data.groups || []);
     } catch (err) {
-      console.error('Could not load photos.json, using fallback list:', err);
-      renderGallery(FALLBACK_GROUPS);
+      console.error('Could not load photos.json:', err);
+      container.innerHTML = '<p class="ui" style="text-align:center; opacity:0.7; font-size:0.9rem;">Could not load photos.json. Check the file name and that the JSON is valid.</p>';
     }
   }
 
   function renderGallery(groups){
     const container = document.getElementById('gallery-groups');
+    container.innerHTML = '';
 
-    if (ALLOWED_TITLES.length) {
-      groups = groups.filter(g => ALLOWED_TITLES.includes(g.title));
-    }
+    groups.forEach(group => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'gallery-group';
 
-    if (!groups.length) {
-      container.innerHTML = '<p class="ui" style="text-align:center; opacity:0.6; font-size:0.9rem;">Photos will appear here soon.</p>';
-      return;
-    }
+      const title = document.createElement('p');
+      title.className = 'group-title';
+      title.textContent = group.title;
 
-    container.innerHTML = groups.map(group => {
-      const photos = expandPhotos(group);
-      const showSwipeHint = photos.length > 3;
-      const safeTitle = group.title.replace(/'/g, "\\'");
-      return `
-      <div class="gallery-group">
-        <p class="group-title">${group.title}</p>
-        <p class="group-desc">${group.desc}</p>
-        ${showSwipeHint ? '<p class="swipe-hint">← swipe to view photos →</p>' : ''}
-        <div class="pages">
-          ${photos.map(filePath => `
-            <figure class="page" onclick="openBook('${filePath}', '${safeTitle}')">
-              <div class="frame">
-                <img src="${filePath}" alt="${group.title}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <span class="hint">Photo coming soon</span>
-              </div>
-            </figure>
-          `).join('')}
-        </div>
-      </div>
-    `}).join('');
+      const desc = document.createElement('p');
+      desc.className = 'group-desc';
+      desc.textContent = group.desc || '';
+
+      const hint = document.createElement('p');
+      hint.className = 'swipe-hint';
+      hint.textContent = '← swipe to view photos →';
+
+      const strip = document.createElement('div');
+      strip.className = 'pages';
+
+      wrapper.append(title, desc, hint, strip);
+      container.appendChild(wrapper);
+
+      for (let i = 1; i <= group.count; i++){
+        const src = group.folder + '/' + i + '.JPG';
+
+        const fig = document.createElement('figure');
+        fig.className = 'page';
+        fig.addEventListener('click', () => openBook(src, group.title));
+
+        const frame = document.createElement('div');
+        frame.className = 'frame';
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = group.title;
+        img.loading = 'lazy';
+        img.addEventListener('error', () => {
+          fig.remove();
+          if (!strip.children.length) wrapper.style.display = 'none';
+        });
+
+        frame.appendChild(img);
+        fig.appendChild(frame);
+        strip.appendChild(fig);
+      }
+    });
   }
 
   loadGallery();
@@ -634,7 +621,7 @@
   }
 
   document.getElementById('lightbox').addEventListener('click', function(e){
-    if(e.target === this) closeBook();
+    if (e.target === this) closeBook();
   });
 
   document.addEventListener('keydown', function(e){
