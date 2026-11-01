@@ -494,9 +494,9 @@
     <!-- Hero Title -->
     <section class="hero">
       <div class="hero-content">
-        <p class="once">Our happily ever after...</p>
+        <p class="once">Our happily ever after…</p>
         <h1>Anki<span class="amp">&amp;</span>Darrel</h1>
-        <p class="tag">two families believed we belonged together — and you helped us write it.</p>
+        <p class="tag">Two families believed we belonged together — and you helped us write our story.</p>
         <p class="date">Thank You &middot; October 25, 2026</p>
       </div>
     </section>
@@ -506,9 +506,9 @@
       <section class="chapter">
         <p class="kicker">Chapter One</p>
         <h2>Thank You For Being There</h2>
-        <p>Every fairy tale needs someone to turn the first page. Ours was turned by our parents — who believed, before we ever met, that we would be good for each other. But it was all of you who filled the rooms, said the blessings, danced past midnight, and made October 25th feel like the happy evening we'd hoped for.</p>
-        <p>From both of our Kazara Matov to the last song at the reception — thank you for every part of it.</p>
-        <p class="script-line">"They wrote the first chapter, and you helped us fill every page since."</p>
+        <p>Every fairy tale needs someone to turn the first page. Ours was turned by our parents — who believed, before we ever met, that we would be good for each other. But it was all of you who filled the rooms, said the blessings, danced past midnight, and made October 25th feel like the celebration we’d always dreamed of.</p>
+        <p>From both our Roce ceremonies to the last song at the reception — thank you for every part of it.</p>
+        <p class="script-line">“They wrote the first chapter, and you filled the pages that followed.”</p>
       </section>
 
       <div class="flourish">
@@ -536,7 +536,7 @@
         <img id="lb-img" src="" alt="">
         <p class="cap" id="lb-caption"></p>
         <p class="count ui" id="lb-count"></p>
-        <a class="dl" id="lb-link" href="https://photos.app.goo.gl/Kpk9cEHSjDZeLV5T7" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">Download Full Resolution on Google Photos ↗</a>
+        <a class="dl" id="lb-link" href="https://photos.app.goo.gl/Kpk9cEHSjDZeLV5T7" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">View full resolution on Google Photos ↗</a>
       </div>
     </div>
 
@@ -558,19 +558,19 @@
         <div class="d">
           <p class="label">The Day</p>
           <p class="value">October 25, 2026</p>
-          <p class="sub">A Sunday we'll never forget</p>
+          <p class="sub">A Sunday we’ll never forget</p>
         </div>
         <div class="d">
           <p class="label">With Thanks To</p>
-          <p class="value">Lobo &amp; D'Souza Families</p>
+          <p class="value">Lobo &amp; D’Souza Families</p>
           <p class="sub">For writing the first chapter</p>
         </div>
       </div>
     </div>
 
     <footer>
-      <p class="script">...and they lived happily ever after — thanks to everyone who shared our day.</p>
-      <p class="fine">With all our love — Anki &amp; Darrel, and Lobo &amp; D'Souza families · October 25, 2026</p>
+      <p class="script">…and we lived happily ever after — thanks to everyone who shared our day.</p>
+      <p class="fine">With all our love — Anki &amp; Darrel, and Lobo &amp; D’Souza families · October 25, 2026</p>
     </footer>
 
   </div>
@@ -631,7 +631,7 @@
       renderAlbumLinks(groups);
     } catch (err) {
       console.error('Could not load photos.json:', err);
-      container.innerHTML = '<p class="ui" style="text-align:center; opacity:0.7; font-size:0.9rem;">Could not load photos.json. Check the file name and that the JSON is valid.</p>';
+      container.innerHTML = '<p class="ui" style="text-align:center; opacity:0.7; font-size:0.9rem;">The photos couldn’t load just now. Please refresh, or open the full albums below.</p>';
     }
   }
 
@@ -659,7 +659,7 @@
       link.target = '_blank';
       link.rel = 'noreferrer noopener';
       link.referrerPolicy = 'no-referrer';
-      link.textContent = 'Open this album ↗';
+      link.textContent = 'Open album ↗';
 
       const hint = document.createElement('p');
       hint.className = 'swipe-hint';
@@ -732,7 +732,7 @@
       open.target = '_blank';
       open.rel = 'noreferrer noopener';
       open.referrerPolicy = 'no-referrer';
-      open.textContent = 'Open Album ↗';
+      open.textContent = 'Open album ↗';
 
       const copy = document.createElement('button');
       copy.className = 'btn';
