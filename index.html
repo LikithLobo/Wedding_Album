@@ -221,6 +221,19 @@
     margin:0 auto 8px;
     line-height:1.5;
   }
+  .gallery-group .group-link{
+    display:block;
+    width:max-content;
+    margin:4px auto 14px;
+    font-family:'Inter', sans-serif;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--parchment);
+    border-bottom:1px solid var(--gold);
+    padding-bottom:4px;
+  }
+  .gallery-group .group-link:hover{ color:var(--gold); }
 
   .page{
     flex:0 0 220px;
@@ -296,7 +309,7 @@
     background:none; border:none;
   }
 
-  /* Google Photos Invite Section */
+  /* Google Photos Albums Section */
   .insert{
     background:rgba(20, 16, 30, 0.75);
     -webkit-backdrop-filter: blur(8px);
@@ -319,6 +332,20 @@
   .insert h3{ font-size:clamp(1.6rem,3.4vw,2.2rem); font-weight:600; margin:0 0 16px; }
   .insert p{ max-width:520px; margin:0 auto 26px; line-height:1.8; color:rgba(247,238,217,0.78); font-size:1.15rem; }
 
+  .album-links{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    align-items:center;
+    margin-top:8px;
+  }
+  .album-row{ text-align:center; }
+  .album-row .album-name{
+    font-family:'Parisienne', cursive;
+    font-size:1.5rem;
+    color:var(--gold);
+    margin:0 0 8px;
+  }
   .btn-wrap{
     display:flex;
     gap:18px;
@@ -342,7 +369,8 @@
   }
   .btn:hover{ color:var(--gold); }
   .insert .note{
-    margin-top:20px;
+    margin-top:30px;
+    margin-bottom:0;
     font-family:'Inter', sans-serif;
     font-size:0.7rem;
     color:rgba(247,238,217,0.5);
@@ -424,7 +452,7 @@
       <section class="chapter">
         <p class="kicker">Chapter Two</p>
         <h2>Pages From Our Story</h2>
-        <p>A few of our favourite moments, told in order. Tap any photo to view it full screen, and find the full album below to download or relive whenever you'd like.</p>
+        <p>A few of our favourite moments, told in order. Tap any photo to view it full screen, and find the full albums below to download or relive whenever you'd like.</p>
       </section>
 
       <div id="gallery-groups">
@@ -439,25 +467,18 @@
       <div class="box">
         <img id="lb-img" src="" alt="">
         <p class="cap" id="lb-caption"></p>
-        <a class="dl" id="lb-link" href="https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">Download Full Resolution on Google Photos ↗</a>
+        <a class="dl" id="lb-link" href="https://photos.app.goo.gl/Kpk9cEHSjDZeLV5T7" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">Download Full Resolution on Google Photos ↗</a>
       </div>
     </div>
 
-    <!-- Google Photos Shared Link -->
+    <!-- Google Photos Albums -->
     <div class="insert">
       <div class="wrap">
-        <p class="kicker">Full Album</p>
+        <p class="kicker">Full Albums</p>
         <h3>Find Your Photos With Face Search</h3>
-        <p>Looking for shots of yourself? Browse our shared Google Photos album. Tap the <strong>Search</strong> icon inside Google Photos to use <strong>People / Find Person</strong> to locate all pictures of you instantly.</p>
+        <p>Looking for shots of yourself? Open an album in Google Photos, tap the <strong>Search</strong> icon and use <strong>People / Find Person</strong> to locate all pictures of you instantly.</p>
 
-        <div class="btn-wrap">
-          <a class="btn" id="albumLink" href="https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
-            Open Google Photos Album ↗
-          </a>
-          <button class="btn" id="copyBtn" onclick="copyAlbumLink()">
-            📋 Copy Album Link
-          </button>
-        </div>
+        <div class="album-links" id="album-links"></div>
 
         <p class="note">Opens directly in Google Photos without pop-up issues</p>
       </div>
@@ -521,7 +542,8 @@
   }, { passive: true });
 
   // GALLERY — everything is configured in photos.json
-  let GOOGLE_ALBUM_URL = "https://photos.app.goo.gl/EVZQgRNZdDN9HRSk8";
+  // Default album link, used if a section has no albumUrl of its own.
+  let DEFAULT_ALBUM_URL = "https://photos.app.goo.gl/Kpk9cEHSjDZeLV5T7";
 
   async function loadGallery(){
     const container = document.getElementById('gallery-groups');
@@ -530,13 +552,12 @@
       if (!res.ok) throw new Error('photos.json not found (status ' + res.status + ')');
       const data = await res.json();
 
-      if (data.albumUrl) {
-        GOOGLE_ALBUM_URL = data.albumUrl;
-        document.getElementById('albumLink').href = GOOGLE_ALBUM_URL;
-        document.getElementById('lb-link').href = GOOGLE_ALBUM_URL;
-      }
+      if (data.albumUrl) DEFAULT_ALBUM_URL = data.albumUrl;
+      document.getElementById('lb-link').href = DEFAULT_ALBUM_URL;
 
-      renderGallery(data.groups || []);
+      const groups = data.groups || [];
+      renderGallery(groups);
+      renderAlbumLinks(groups);
     } catch (err) {
       console.error('Could not load photos.json:', err);
       container.innerHTML = '<p class="ui" style="text-align:center; opacity:0.7; font-size:0.9rem;">Could not load photos.json. Check the file name and that the JSON is valid.</p>';
@@ -548,6 +569,8 @@
     container.innerHTML = '';
 
     groups.forEach(group => {
+      const albumUrl = group.albumUrl || DEFAULT_ALBUM_URL;
+
       const wrapper = document.createElement('div');
       wrapper.className = 'gallery-group';
 
@@ -559,6 +582,14 @@
       desc.className = 'group-desc';
       desc.textContent = group.desc || '';
 
+      const link = document.createElement('a');
+      link.className = 'group-link';
+      link.href = albumUrl;
+      link.target = '_blank';
+      link.rel = 'noreferrer noopener';
+      link.referrerPolicy = 'no-referrer';
+      link.textContent = 'Open this album ↗';
+
       const hint = document.createElement('p');
       hint.className = 'swipe-hint';
       hint.textContent = '← swipe to view photos →';
@@ -566,7 +597,7 @@
       const strip = document.createElement('div');
       strip.className = 'pages';
 
-      wrapper.append(title, desc, hint, strip);
+      wrapper.append(title, desc, link, hint, strip);
       container.appendChild(wrapper);
 
       for (let i = 1; i <= group.count; i++){
@@ -574,7 +605,7 @@
 
         const fig = document.createElement('figure');
         fig.className = 'page';
-        fig.addEventListener('click', () => openBook(src, group.title));
+        fig.addEventListener('click', () => openBook(src, group.title, albumUrl));
 
         const frame = document.createElement('div');
         frame.className = 'frame';
@@ -595,24 +626,58 @@
     });
   }
 
-  loadGallery();
+  function renderAlbumLinks(groups){
+    const box = document.getElementById('album-links');
+    box.innerHTML = '';
 
-  function copyAlbumLink(){
-    const btn = document.getElementById('copyBtn');
-    navigator.clipboard.writeText(GOOGLE_ALBUM_URL).then(() => {
-      const orig = btn.innerText;
-      btn.innerText = "✓ Link Copied!";
-      setTimeout(() => { btn.innerText = orig; }, 2500);
-    }).catch(() => {
-      prompt("Copy our Google Photos album link:", GOOGLE_ALBUM_URL);
+    groups.forEach(group => {
+      const url = group.albumUrl || DEFAULT_ALBUM_URL;
+
+      const row = document.createElement('div');
+      row.className = 'album-row';
+
+      const name = document.createElement('p');
+      name.className = 'album-name';
+      name.textContent = group.title;
+
+      const btns = document.createElement('div');
+      btns.className = 'btn-wrap';
+
+      const open = document.createElement('a');
+      open.className = 'btn';
+      open.href = url;
+      open.target = '_blank';
+      open.rel = 'noreferrer noopener';
+      open.referrerPolicy = 'no-referrer';
+      open.textContent = 'Open Album ↗';
+
+      const copy = document.createElement('button');
+      copy.className = 'btn';
+      copy.type = 'button';
+      copy.textContent = '📋 Copy Link';
+      copy.addEventListener('click', () => copyAlbumLink(copy, url));
+
+      btns.append(open, copy);
+      row.append(name, btns);
+      box.appendChild(row);
     });
   }
 
-  function openBook(src, caption){
+  function copyAlbumLink(btn, url){
+    navigator.clipboard.writeText(url).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = "✓ Link Copied!";
+      setTimeout(() => { btn.textContent = orig; }, 2500);
+    }).catch(() => {
+      prompt("Copy our Google Photos album link:", url);
+    });
+  }
+
+  function openBook(src, caption, albumUrl){
     document.getElementById('lb-img').src = src;
     document.getElementById('lb-img').alt = caption || '';
     document.getElementById('lb-caption').textContent = caption || '';
-    document.getElementById('lb-link').href = GOOGLE_ALBUM_URL;
+    document.getElementById('lb-link').href = albumUrl || DEFAULT_ALBUM_URL;
     document.getElementById('lightbox').classList.add('open');
   }
 
@@ -627,6 +692,8 @@
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape') closeBook();
   });
+
+  loadGallery();
 </script>
 
 </body>
